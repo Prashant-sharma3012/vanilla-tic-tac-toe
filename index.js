@@ -8,46 +8,35 @@
   var initBoard = new Array(9).fill("_");
 
   // helper function to check if any row is equal
-  var checkIfRowOrColIsEqual = function (board) {
-    var isEqual = false;
-
+  var checkIfRowIsEqual = function (board) {
     for (i = 0; i < board.length; i = i + 3) {
-      if (board[i] === board[i + 1] && board[i] === board[i + 2]) {
-        isEqual = true;
-        break;
+      if (board[i] + board[i + 1] + board[i + 2] === 3) {
+        return true;
       }
     }
 
-    return isEqual;
+    return false;
   }
 
   // helper function to check if any row is equal
   var checkIfColIsEqual = function (board) {
-    var isEqual = false;
-
     for (i = 0; i < 3; i++) {
-      if (board[i] === board[i + 3] && board[i] === board[i + 6]) {
-        isEqual = true;
-        break;
+      if (board[i] + board[i + 3] + board[i + 6] === 3) {
+        return true;
       }
     }
 
-    return isEqual;
+    return false;
   }
 
   // helper function to check if any row is equal
   var checkIfDiagIsEqual = function (board) {
-    var isEqual = false;
-
-    if(board[0] === board[4] && board[8] === board[4]){
-      isEqual = true;
+    if ((board[0] + board[4] + board[8] === 3) ||
+      (board[2] + board[4] + board[6] === 3)) {
+      return true;
     }
 
-    if(board[2] === board[4] && board[6] === board[4]){
-      isEqual = true;
-    }
-
-    return isEqual;
+    return false;
   }
 
   var _ = self.game = function game() {
@@ -57,7 +46,7 @@
 
   _.prototype = {
     isPlayable: function isPlayable() {
-      return !(this.board.includes('_') && !this.isOver());
+      return !this.isOver() && this.board.includes('_');
     },
 
     isOver: function isOver() {
@@ -65,7 +54,7 @@
     },
 
     play: function play(position) {
-      this.board[position] = this.playerX ? 'X' : 'O';
+      this.board[position] = this.playerX ? 1 : 0;
       this.playerX = !this.playerX;
 
       return this.board;
@@ -74,9 +63,9 @@
     seeBoard: function seeBoard() {
       var printable = '';
 
-      this.board.map(function(e,i){
+      this.board.map(function (e, i) {
         printable = printable + e + ' ';
-        if(i === 2 || i === 5 || i === 8){
+        if (i === 2 || i === 5 || i === 8) {
           printable = printable + '\n';
         }
       });
