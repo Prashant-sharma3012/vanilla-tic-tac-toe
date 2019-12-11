@@ -8,6 +8,6 @@
   border-color: black;
 }
 
-.btn:hover {
+.btn:active {
   background-color: lightgrey;
 }

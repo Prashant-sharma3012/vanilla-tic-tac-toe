@@ -85,6 +85,16 @@
     this.boardToRender = board;
   }
 
+  var createBtn = function createBtn(index, board) {
+    var btn = document.createElement("BUTTON");
+
+    btn.setAttribute("class", "btn");
+    btn.setAttribute("id", "btn-" + index);
+    btn.innerText = board[index] === "_" ? " " : (board[index] ? "X" : "O");
+
+    return btn;
+  }
+
   _.prototype = {
     render: function render() {
       var table = this.createLayout();
@@ -95,25 +105,24 @@
     createLayout: function createLayout() {
       var inputArray = new Array(9).fill(0);
       var table = document.createElement("table");
+      table.setAttribute("id", "grid")
       table.createTBody();
 
       var rowNum = 0;
       var row;
 
+      var thisRef = this;
+
       // create 3 rows
       inputArray.map(function (e, i) {
 
-        if (i===0 || i === 3 || i === 6) {
+        if (i === 0 || i === 3 || i === 6) {
           row = table.insertRow(rowNum);
-          row.setAttribute("id", 'row' + rowNum);
+          row.setAttribute("id", 'row-' + rowNum);
           rowNum = rowNum + 1;
         }
 
-        var btn = document.createElement("BUTTON");
-        btn.setAttribute("class","btn")
-        btn.innerText = this.boardToRender === "_"
-        ? ""
-        : (this.boardToRender ? "X" : "O");
+        var btn = createBtn(i, thisRef.boardToRender);
 
         var operatingRow = table.rows[rowNum - 1];
         var col = operatingRow.insertCell(-1);
@@ -127,21 +136,49 @@
 
     },
 
-    attachListners: function attachListners() {
-
-    },
-
+    updateLayout: function updateLayout(atPos) {
+      var btn = document.getElementById('btn-'+atPos);
+      btn.innerText = this.boardToRender[atPos] ? "X" : "O";
+    }
   }
 
 })();
 
 // ctrl
 (function () {
-  var mygame = new game();
 
-  var gameV = new gameView(mygame.board);
+  var _ = self.GameCtrl = function GameCtrl() {
+    this.model = new game();
+    this.view = new gameView(new Array(this.model.board));
+  }
 
-  gameV.render()
+  _.prototype = {
+    start: function start() {
+      this.view.render();
+    },
+
+    handleBtnClick: function handleBtnClick(event) {
+      var atPos = event.target.id.split('-')[1];
+
+      this.model.play(atPos);
+      this.view.updateLayout(atPos);
+    },
+
+    attachListeners: function attachListeners() {
+      var table = document.getElementById("grid");
+
+      table.addEventListener('click', this.handleBtnClick.bind(this))
+    },
+
+
+  }
+
+
+  var gamectrl = new GameCtrl();
+  gamectrl.start();
+  gamectrl.attachListeners()
+
 })();
+
 
 
