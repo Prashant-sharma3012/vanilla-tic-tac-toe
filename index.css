@@ -50,7 +50,7 @@
   width: 7rem;
   height: 3rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   box-shadow: 0.1rem 0.1rem grey;
 }
 
@@ -65,4 +65,17 @@
 
 .gameButton:hover{
   cursor: pointer;
+}
+
+.winningRow{
+  animation: BLINK-YO 1s infinite;
+}
+
+@keyframes BLINK-YO {
+  0%, 49% {
+    background-color: greenyellow;
+  }
+  50%, 100% {
+    background-color: lightslategray;
+  }
 }

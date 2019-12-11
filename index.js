@@ -8,7 +8,7 @@
       var sumOfRowElemnts = board[i] + board[i + 1] + board[i + 2];
 
       if (sumOfRowElemnts === 3 || sumOfRowElemnts === 0) {
-        return true;
+        return [i, i + 1, i + 2];
       }
     }
 
@@ -19,9 +19,9 @@
   var checkIfColIsEqual = function (board) {
     for (i = 0; i < 3; i++) {
       var sumOfColElemnts = board[i] + board[i + 3] + board[i + 6];
-      
+
       if (sumOfColElemnts === 3 || sumOfColElemnts === 0) {
-        return true;
+        return [i, i + 3, i + 6];
       }
     }
 
@@ -33,9 +33,12 @@
     var sumOfdiag1 = board[0] + board[4] + board[8]
     var sumOfdiag2 = board[2] + board[4] + board[6]
 
-    if (sumOfdiag1 === 3 || sumOfdiag1 === 0 ||
-      sumOfdiag2 === 3 || sumOfdiag2 === 0) {
-      return true;
+    if (sumOfdiag1 === 3 || sumOfdiag1 === 0) {
+      return [0, 4, 8];
+    }
+
+    if (sumOfdiag2 === 3 || sumOfdiag2 === 0) {
+      return [2, 4, 6];
     }
 
     return false;
@@ -60,13 +63,30 @@
       return checkIfRowIsEqual(this.board) || checkIfColIsEqual(this.board) || checkIfDiagIsEqual(this.board);
     },
 
+    getWinningSpots: function getWinningSpots() {
+      var row = checkIfRowIsEqual(this.board);
+      var col = checkIfColIsEqual(this.board);
+      var diag = checkIfDiagIsEqual(this.board);
+
+      switch (true) {
+        case !!row:
+          return row;
+        case !!col:
+          return col;
+        case !!diag:
+          return diag;
+        default:
+          break;
+      }
+    },
+
     play: function play(position) {
 
-      if(this.board[position] === '_'){
+      if (this.board[position] === '_') {
         this.board[position] = this.playerX ? 1 : 0;
-        this.playerX = !this.playerX;  
+        this.playerX = !this.playerX;
       }
-      
+
       return this.board;
     },
 
@@ -121,6 +141,13 @@
       this.boardToRender = board;
     },
 
+    markWinningSpots:function markWinningSpots(places) {
+      places.map(function (e,i) {
+        var btn = document.getElementById('btn-'+ e);
+        btn.classList.add("winningRow")
+      });
+    },
+
     createMenu: function createMenu() {
       var btn = document.createElement("BUTTON");
       btn.setAttribute("class", "gameButton");
@@ -131,8 +158,8 @@
       msg.setAttribute("class", "message");
       msg.innerText = ''
 
-      gameMenu.insertAdjacentElement('beforeend',btn);
-      gameMenu.insertAdjacentElement('beforeend',msg);
+      gameMenu.insertAdjacentElement('beforeend', btn);
+      gameMenu.insertAdjacentElement('beforeend', msg);
     },
 
     createBoardLayout: function createBoardLayout() {
@@ -170,9 +197,9 @@
     },
 
     updateLayout: function updateLayout(atPos, board) {
-      var btn = document.getElementById('btn-'+atPos);
+      var btn = document.getElementById('btn-' + atPos);
 
-      if(this.boardToRender[atPos] === '_'){
+      if (this.boardToRender[atPos] === '_') {
         this.boardToRender = new Array().concat(board);
         btn.innerText = this.boardToRender[atPos] ? "X" : "O";
       }
@@ -196,24 +223,27 @@
 
     handleBtnClick: function handleBtnClick(event) {
 
-      if(this.model.isOver()) return;
+      if (this.model.isOver()) return;
 
       var atPos = event.target.id.split('-')[1];
 
       this.model.play(atPos);
       this.view.updateLayout(atPos, this.model.board);
 
-      if(this.model.isOver()) {
+      if (this.model.isOver()) {
+        this.view.markWinningSpots(this.model.getWinningSpots());
+
         var msg = document.querySelector('.message');
-        msg.innerText = 'Player ' + (this.model.playerX ? 'O' : 'X' ) + ' Wins!!!!!'
+        msg.innerText = 'Player ' + (this.model.playerX ? 'O' : 'X') + ' Wins!!!!!';
+
       }
     },
 
     handleReset: function handleReset() {
       this.model.reset();
-      console.log(this.model);
       this.view.reset(new Array().concat(this.model.board));
-      console.log(this.view);
+      
+      // restart the game
       gamectrl.start();
       gamectrl.attachListeners();
     },
