@@ -18,7 +18,27 @@
 
 #game{
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   height: 100vh;
+}
+
+#gameMenu{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+#gameBoard{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.message{
+  margin-left: 3rem;
+  font-weight: 700;
+  font-size: 1.2rem;
 }

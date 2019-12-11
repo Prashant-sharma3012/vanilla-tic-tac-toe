@@ -5,7 +5,9 @@
   // helper function to check if any row is equal
   var checkIfRowIsEqual = function (board) {
     for (i = 0; i < board.length; i = i + 3) {
-      if (board[i] + board[i + 1] + board[i + 2] === 3) {
+      var sumOfRowElemnts = board[i] + board[i + 1] + board[i + 2];
+
+      if (sumOfRowElemnts === 3 || sumOfRowElemnts === 0) {
         return true;
       }
     }
@@ -16,7 +18,9 @@
   // helper function to check if any row is equal
   var checkIfColIsEqual = function (board) {
     for (i = 0; i < 3; i++) {
-      if (board[i] + board[i + 3] + board[i + 6] === 3) {
+      var sumOfColElemnts = board[i] + board[i + 3] + board[i + 6];
+      
+      if (sumOfColElemnts === 3 || sumOfColElemnts === 0) {
         return true;
       }
     }
@@ -26,8 +30,11 @@
 
   // helper function to check if any row is equal
   var checkIfDiagIsEqual = function (board) {
-    if ((board[0] + board[4] + board[8] === 3) ||
-      (board[2] + board[4] + board[6] === 3)) {
+    var sumOfdiag1 = board[0] + board[4] + board[8]
+    var sumOfdiag2 = board[2] + board[4] + board[6]
+
+    if (sumOfdiag1 === 3 || sumOfdiag1 === 0 ||
+      sumOfdiag2 === 3 || sumOfdiag2 === 0) {
       return true;
     }
 
@@ -40,6 +47,11 @@
   }
 
   _.prototype = {
+    reset: function reset() {
+      this.board = new Array(9).fill("_");
+      this.playerX = true;
+    },
+
     isPlayable: function isPlayable() {
       return !this.isOver() && this.board.includes('_');
     },
@@ -77,7 +89,8 @@
 // view
 (function () {
   var documentFrg = document.createDocumentFragment();
-  var domNode = document.getElementById('game');
+  var gameBoard = document.getElementById('gameBoard');
+  var gameMenu = document.getElementById('gameMenu');
 
   var _ = self.gameView = function gameView(board) {
     this.boardToRender = board;
@@ -95,12 +108,34 @@
 
   _.prototype = {
     render: function render() {
-      var table = this.createLayout();
+      var table = this.createBoardLayout();
       documentFrg.appendChild(table);
-      domNode.appendChild(documentFrg);
+      gameBoard.appendChild(documentFrg);
+
+      this.createMenu();
     },
 
-    createLayout: function createLayout() {
+    reset: function reset(board) {
+      gameBoard.innerHTML = "";
+      gameMenu.innerHTML = "";
+      this.boardToRender = board;
+    },
+
+    createMenu: function createMenu() {
+      var btn = document.createElement("BUTTON");
+      btn.setAttribute("class", "gameButton");
+      btn.setAttribute("id", "gameButton");
+      btn.innerText = 'Restart'
+
+      var msg = document.createElement("DIV");
+      msg.setAttribute("class", "message");
+      msg.innerText = ''
+
+      gameMenu.insertAdjacentElement('beforeend',btn);
+      gameMenu.insertAdjacentElement('beforeend',msg);
+    },
+
+    createBoardLayout: function createBoardLayout() {
       var inputArray = new Array(9).fill(0);
       var table = document.createElement("table");
       table.setAttribute("id", "grid")
@@ -160,16 +195,35 @@
     },
 
     handleBtnClick: function handleBtnClick(event) {
+
+      if(this.model.isOver()) return;
+
       var atPos = event.target.id.split('-')[1];
 
       this.model.play(atPos);
       this.view.updateLayout(atPos, this.model.board);
+
+      if(this.model.isOver()) {
+        var msg = document.querySelector('.message');
+        msg.innerText = 'Player ' + (this.model.playerX ? 'O' : 'X' ) + ' Wins!!!!!'
+      }
+    },
+
+    handleReset: function handleReset() {
+      this.model.reset();
+      console.log(this.model);
+      this.view.reset(new Array().concat(this.model.board));
+      console.log(this.view);
+      gamectrl.start();
+      gamectrl.attachListeners();
     },
 
     attachListeners: function attachListeners() {
       var table = document.getElementById("grid");
+      var resetBtn = document.getElementById("gameButton");
 
-      table.addEventListener('click', this.handleBtnClick.bind(this))
+      table.addEventListener('click', this.handleBtnClick.bind(this));
+      resetBtn.addEventListener('click', this.handleReset.bind(this));
     },
 
 
@@ -178,7 +232,7 @@
 
   var gamectrl = new GameCtrl();
   gamectrl.start();
-  gamectrl.attachListeners()
+  gamectrl.attachListeners();
 
 })();
 
