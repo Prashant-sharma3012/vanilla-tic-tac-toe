@@ -54,9 +54,12 @@
     },
 
     play: function play(position) {
-      this.board[position] = this.playerX ? 1 : 0;
-      this.playerX = !this.playerX;
 
+      if(this.board[position] === '_'){
+        this.board[position] = this.playerX ? 1 : 0;
+        this.playerX = !this.playerX;  
+      }
+      
       return this.board;
     },
 
@@ -136,9 +139,13 @@
 
     },
 
-    updateLayout: function updateLayout(atPos) {
+    updateLayout: function updateLayout(atPos, board) {
       var btn = document.getElementById('btn-'+atPos);
-      btn.innerText = this.boardToRender[atPos] ? "X" : "O";
+
+      if(this.boardToRender[atPos] === '_'){
+        this.boardToRender = new Array().concat(board);
+        btn.innerText = this.boardToRender[atPos] ? "X" : "O";
+      }
     }
   }
 
@@ -149,7 +156,7 @@
 
   var _ = self.GameCtrl = function GameCtrl() {
     this.model = new game();
-    this.view = new gameView(new Array(this.model.board));
+    this.view = new gameView(new Array().concat(this.model.board));
   }
 
   _.prototype = {
@@ -161,7 +168,7 @@
       var atPos = event.target.id.split('-')[1];
 
       this.model.play(atPos);
-      this.view.updateLayout(atPos);
+      this.view.updateLayout(atPos, this.model.board);
     },
 
     attachListeners: function attachListeners() {
