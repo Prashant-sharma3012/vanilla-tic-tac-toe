@@ -1,10 +1,5 @@
 // model
 (function () {
-
-  // Our initial array will look like
-  // [_,_,_,
-  // _,_,_,
-  // _,_,_]
   var initBoard = new Array(9).fill("_");
 
   // helper function to check if any row is equal
