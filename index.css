@@ -1,0 +1,13 @@
+.btn {
+  display: flex;
+  background-color: transparent;
+  width: 3rem;
+  height: 3rem;
+  justify-content: center;
+  font-size: 2rem;
+  border-color: black;
+}
+
+.btn:hover {
+  background-color: lightgrey;
+}

@@ -74,12 +74,74 @@
     }
   }
 
-})()
+})();
 
-  // view
-  (function () {
-  })()
+// view
+(function () {
+  var documentFrg = document.createDocumentFragment();
+  var domNode = document.getElementById('game');
 
-  // ctrl
-  (function () {
-  })()
+  var _ = self.gameView = function gameView(board) {
+    this.boardToRender = board;
+  }
+
+  _.prototype = {
+    render: function render() {
+      var table = this.createLayout();
+      documentFrg.appendChild(table);
+      domNode.appendChild(documentFrg);
+    },
+
+    createLayout: function createLayout() {
+      var inputArray = new Array(9).fill(0);
+      var table = document.createElement("table");
+      table.createTBody();
+
+      var rowNum = 0;
+      var row;
+
+      // create 3 rows
+      inputArray.map(function (e, i) {
+
+        if (i===0 || i === 3 || i === 6) {
+          row = table.insertRow(rowNum);
+          row.setAttribute("id", 'row' + rowNum);
+          rowNum = rowNum + 1;
+        }
+
+        var btn = document.createElement("BUTTON");
+        btn.setAttribute("class","btn")
+        btn.innerText = this.boardToRender === "_"
+        ? ""
+        : (this.boardToRender ? "X" : "O");
+
+        var operatingRow = table.rows[rowNum - 1];
+        var col = operatingRow.insertCell(-1);
+
+        col.appendChild(btn)
+
+        return table;
+      });
+
+      return table;
+
+    },
+
+    attachListners: function attachListners() {
+
+    },
+
+  }
+
+})();
+
+// ctrl
+(function () {
+  var mygame = new game();
+
+  var gameV = new gameView(mygame.board);
+
+  gameV.render()
+})();
+
+
