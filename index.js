@@ -1,7 +1,5 @@
 // model
 (function () {
-  var initBoard = new Array(9).fill("_");
-
   // helper function to check if any row is equal
   var checkIfRowIsEqual = function (board) {
     for (i = 0; i < board.length; i = i + 3) {
@@ -30,8 +28,8 @@
 
   // helper function to check if any row is equal
   var checkIfDiagIsEqual = function (board) {
-    var sumOfdiag1 = board[0] + board[4] + board[8]
-    var sumOfdiag2 = board[2] + board[4] + board[6]
+    var sumOfdiag1 = board[0] + board[4] + board[8];
+    var sumOfdiag2 = board[2] + board[4] + board[6];
 
     if (sumOfdiag1 === 3 || sumOfdiag1 === 0) {
       return [0, 4, 8];
@@ -45,7 +43,7 @@
   }
 
   var _ = self.game = function game() {
-    this.board = initBoard;
+    this.board = new Array(9).fill("_");
     this.playerX = true;
   }
 
@@ -55,11 +53,11 @@
       this.playerX = true;
     },
 
-    isPlayable: function isPlayable() {
-      return !this.isOver() && this.board.includes('_');
+    canPlay: function canPlay() {
+      return this.board.includes('_');
     },
 
-    isOver: function isOver() {
+    isGameOver: function isGameOver() {
       return checkIfRowIsEqual(this.board) || checkIfColIsEqual(this.board) || checkIfDiagIsEqual(this.board);
     },
 
@@ -89,26 +87,12 @@
 
       return this.board;
     },
-
-    seeBoard: function seeBoard() {
-      var printable = '';
-
-      this.board.map(function (e, i) {
-        printable = printable + e + ' ';
-        if (i === 2 || i === 5 || i === 8) {
-          printable = printable + '\n';
-        }
-      });
-
-      console.log(printable);
-    }
   }
 
 })();
 
 // view
 (function () {
-  var documentFrg = document.createDocumentFragment();
   var gameBoard = document.getElementById('gameBoard');
   var gameMenu = document.getElementById('gameMenu');
 
@@ -128,10 +112,11 @@
 
   _.prototype = {
     render: function render() {
+      // make table
       var table = this.createBoardLayout();
-      documentFrg.appendChild(table);
-      gameBoard.appendChild(documentFrg);
+      gameBoard.appendChild(table);
 
+      // create menu
       this.createMenu();
     },
 
@@ -141,10 +126,10 @@
       this.boardToRender = board;
     },
 
-    markWinningSpots:function markWinningSpots(places) {
-      places.map(function (e,i) {
-        var btn = document.getElementById('btn-'+ e);
-        btn.classList.add("winningRow")
+    markWinningSpots: function markWinningSpots(places) {
+      places.map(function (e) {
+        var btn = document.getElementById('btn-' + e);
+        btn.classList.add("winningRow");
       });
     },
 
@@ -152,7 +137,7 @@
       var btn = document.createElement("BUTTON");
       btn.setAttribute("class", "gameButton");
       btn.setAttribute("id", "gameButton");
-      btn.innerText = 'Restart'
+      btn.innerText = 'RESTART'
 
       var msg = document.createElement("DIV");
       msg.setAttribute("class", "message");
@@ -193,7 +178,6 @@
       });
 
       return table;
-
     },
 
     updateLayout: function updateLayout(atPos, board) {
@@ -216,54 +200,58 @@
     this.view = new gameView(new Array().concat(this.model.board));
   }
 
+  var notify = function notify(message) {
+    var msgContainer = document.querySelector('.message');
+    msgContainer.innerText = message;
+  }
+
   _.prototype = {
+    bootstrap: function bootstrap() {
+      gamectrl.start();
+      gamectrl.attachListeners();
+    },
+
     start: function start() {
       this.view.render();
     },
 
+    reset: function reset(params) {
+      this.model.reset();
+      this.view.reset(new Array().concat(this.model.board));
+    },
+
     handleBtnClick: function handleBtnClick(event) {
 
-      if (this.model.isOver()) return;
+      if (this.model.isGameOver()) return;
 
       var atPos = event.target.id.split('-')[1];
 
       this.model.play(atPos);
       this.view.updateLayout(atPos, this.model.board);
 
-      if (this.model.isOver()) {
+      if (this.model.isGameOver()) {
         this.view.markWinningSpots(this.model.getWinningSpots());
+        notify('Player ' + (this.model.playerX ? 'O' : 'X') + ' Wins!!!!!');
+      }
 
-        var msg = document.querySelector('.message');
-        msg.innerText = 'Player ' + (this.model.playerX ? 'O' : 'X') + ' Wins!!!!!';
-
+      if (!this.model.canPlay()) {
+        notify('No more moves possible, restart!!!!');
       }
     },
 
     handleReset: function handleReset() {
-      this.model.reset();
-      this.view.reset(new Array().concat(this.model.board));
-      
-      // restart the game
-      gamectrl.start();
-      gamectrl.attachListeners();
+      this.reset();
+      this.bootstrap();
     },
 
     attachListeners: function attachListeners() {
-      var table = document.getElementById("grid");
-      var resetBtn = document.getElementById("gameButton");
-
-      table.addEventListener('click', this.handleBtnClick.bind(this));
-      resetBtn.addEventListener('click', this.handleReset.bind(this));
+      document.getElementById("grid").addEventListener('click', this.handleBtnClick.bind(this)); // table
+      document.getElementById("gameButton").addEventListener('click', this.handleReset.bind(this)); // reset button
     },
-
-
   }
 
-
   var gamectrl = new GameCtrl();
-  gamectrl.start();
-  gamectrl.attachListeners();
-
+  gamectrl.bootstrap();
 })();
 
 
